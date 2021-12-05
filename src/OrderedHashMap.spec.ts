@@ -10,7 +10,7 @@ const arrayElementObjectsSamples = [
   { name: 'Eta' },
 ];
 
-const arrayElementPrimitiveSamples = [
+const arrayElementPrimitivesSamples = [
   true,
   false,
   -1,
@@ -34,7 +34,7 @@ const arrayElementPrimitiveSamples = [
   console,
 ];
 
-const arrayElementSamples = [...arrayElementObjectsSamples, ...arrayElementPrimitiveSamples];
+const arrayElementSamples = [...arrayElementObjectsSamples, ...arrayElementPrimitivesSamples];
 
 function validateEntryByKey(m: OrderedHashMap, hashKey: string) {
   // hashKey -> hashIndex

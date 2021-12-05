@@ -2,10 +2,15 @@
  * is data structure where both controllable order and linear lookup are important.
  * Regular array-like order works here while elements have hash ids for linear lookup.
  * Why not just "new Map()"?
- * 1. No prepend or insert at place, only append.
+ * 1. No prepend or insert at particular place, only append.
  * 2. Can't change the order of elements, e.g. swap #2 with #0
- * 3. No easy access by array index (Array.from(map.keys())[0])
+ * 3. No direct access by array index (although, it possible Array.from(map.keys())[0])
  * 4. No easy sorting *
+ *
+ * Where OrderedHashMap might be needed?
+ * It could be used as main data structure for hierarchical state of applications.
+ * That kind of model can be useful in multi-client synchronization with
+ * both atomic and entire state updates.
  *
  * Some other alternatives:
  * https://github.com/pluma/ordered-hashmap/blob/master/index.js
@@ -24,9 +29,10 @@
 
  - Work with index
  getElementByIndex
- * insertElementAtIndex
+ * insertElementAtIndex ( alt "pushApart" )
 
  Roadmap methods:
+ forEach
  reduce
  filter
  map
@@ -41,10 +47,11 @@
  set
  insert
  keyAt
- count
- from
+ length
  toString
  removeAtIndex
+ swap
+ move
  contains
  clear
 
@@ -62,7 +69,7 @@ export class OrderedHashMap {
   array = new Array<IOrderedHashMapElement>();
   hashKeyToIndexMap = new Map<string, number>();
 
-  generateHash() {
+  generateHash(): string {
     return Math.random().toString(32).slice(2);
   }
 
