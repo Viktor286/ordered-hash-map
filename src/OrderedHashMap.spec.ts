@@ -126,4 +126,57 @@ describe('OrderedHashMap', () => {
       });
     });
   });
+
+  describe('Deletion and Access', () => {
+    it('correctly gets element by index', () => {
+      const m = new OrderedHashMap();
+      m.appendElement('key1', 'value1');
+      expect(m.getElementByIndex(0)).toBe('value1');
+      expect(m.getElementByIndex(1)).toBeUndefined();
+    });
+
+    it('correctly deletes element by key and updates indices', () => {
+      const m = new OrderedHashMap();
+      m.appendElement('k1', 'v1'); // index 0
+      m.appendElement('k2', 'v2'); // index 1
+      m.appendElement('k3', 'v3'); // index 2
+
+      // Delete first element (index 0 bug check)
+      expect(m.deleteElementByKey('k1')).toBe(true);
+
+      // Check structure
+      expect(m.array.length).toBe(2);
+      expect(m.hashKeyToIndexMap.size).toBe(2);
+
+      // Check indices updated
+      expect(m.getIndexByKey('k2')).toBe(0); // Was 1
+      expect(m.getIndexByKey('k3')).toBe(1); // Was 2
+
+      // Check values
+      expect(m.getElementByKey('k2')).toBe('v2');
+      expect(m.getElementByKey('k3')).toBe('v3');
+    });
+
+    it('correctly inserts element at index', () => {
+      const m = new OrderedHashMap();
+      m.appendElement('k1', 'v1'); // 0
+      m.appendElement('k3', 'v3'); // 1
+
+      m.insertElementAtIndex(1, 'v2', 'k2');
+
+      expect(m.array[0]).toBe('v1');
+      expect(m.array[1]).toBe('v2');
+      expect(m.array[2]).toBe('v3');
+
+      expect(m.getIndexByKey('k1')).toBe(0);
+      expect(m.getIndexByKey('k2')).toBe(1);
+      expect(m.getIndexByKey('k3')).toBe(2); // Shifted
+    });
+
+    it('getElementByKey works for index 0', () => {
+      const m = new OrderedHashMap();
+      m.appendElement('k1', 'v1');
+      expect(m.getElementByKey('k1')).toBe('v1');
+    });
+  });
 });

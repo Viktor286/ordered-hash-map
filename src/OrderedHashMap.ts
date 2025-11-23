@@ -8,9 +8,9 @@
  * 4. No easy sorting *
  *
  * Where OrderedHashMap might be needed?
- * It could be used as main data structure for hierarchical state of applications.
- * That kind of model can be useful in multi-client synchronization with
- * both atomic and entire state updates.
+ * It could be used as main data structure for the inner state of application.
+ * That kind of model can be useful in multi-client synchronization where
+ * both atomic and entire state updates required.
  *
  * Some other alternatives:
  * https://github.com/pluma/ordered-hashmap/blob/master/index.js
@@ -54,7 +54,9 @@
  move
  contains
  clear
-
+ export
+ import
+ compare?
  * */
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -100,7 +102,7 @@ export class OrderedHashMap {
   // work ByKey
   getElementByKey(hashKey: string): IOrderedHashMapElement | undefined {
     const index = this.hashKeyToIndexMap.get(hashKey);
-    return index ? this.array[index] : undefined;
+    return index !== undefined ? this.array[index] : undefined;
   }
 
   getIndexByKey(hashKey: string): number | undefined {
@@ -108,15 +110,43 @@ export class OrderedHashMap {
   }
 
   deleteElementByKey(hashKey: string): boolean {
-    const element = this.getElementByKey(hashKey);
     const elementIdx = this.getIndexByKey(hashKey);
-    if (element && elementIdx) {
-      this.array = [...this.array.slice(0, elementIdx), ...this.array.slice(elementIdx + 1)];
+    if (elementIdx !== undefined) {
+      this.array.splice(elementIdx, 1);
       this.hashKeyToIndexMap.delete(hashKey);
+
+      this.hashKeyToIndexMap.forEach((idx, key) => {
+        if (idx > elementIdx) {
+          this.hashKeyToIndexMap.set(key, idx - 1);
+        }
+      });
+
       return true;
     }
     return false;
   }
 
   // work ByIndex
+  getElementByIndex(index: number): IOrderedHashMapElement | undefined {
+    return this.array[index];
+  }
+
+  insertElementAtIndex(index: number, element: IOrderedHashMapElement, hashKey?: string): IHashKeyToIndexMap {
+    if (index < 0 || index > this.array.length) {
+      throw new Error('Index out of bounds');
+    }
+    if (!hashKey) hashKey = this.generateHash();
+
+    // Shift indexes
+    this.hashKeyToIndexMap.forEach((idx, key) => {
+      if (idx >= index) {
+        this.hashKeyToIndexMap.set(key, idx + 1);
+      }
+    });
+
+    this.hashKeyToIndexMap.set(hashKey, index);
+    this.array.splice(index, 0, element);
+
+    return { hashKey, hashIndex: index };
+  }
 }
